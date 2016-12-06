@@ -17,15 +17,15 @@ class bike:
     def __init__(self, pos=(0,-2,0), forward = (1,0,0),up=(0,1,0), wheel_thick = .3, 
             wheel_rad = .5 , bridge_thick=.1, b=1.0, k=1.0, seat_mass=90.7):
         self.pos = vector(pos)
-        # up is normalized
+        # up unit vector is normalized
         self.up = vector(up).norm()                 
-        # forward is normalized and orthogonal
+        # forward unit vector is normalized and orthogonal
         forward = vector(forward)
         self.forward = (forward - forward.proj(self.up)).norm()  
-        # right is normalized implicitly
+        # right unit vector is normalized implicitly
         self.right = self.forward.cross(self.up)
 
-        # non-vector constants
+        # scalar constants
         self.wheel_thick = float(wheel_thick)
         self.wheel_rad = float(wheel_rad)
         self.bridge_thick = float(bridge_thick)
@@ -72,6 +72,8 @@ class bike:
             make_trail=True, color = color.yellow)
         self.seat.mass = seat_mass
 
+    # takes the differential equation for the acceleration of the passive system,
+    # calculates the the distance the seat ought to be moved vertically, and moves the seat
     def oscillate(self, dt):
         a = (self.k/self.seat.mass)*(self.spr_len-self.spring.axis.mag) - 2*self.beta*self.seatVel
         self.seatVel += a*dt
@@ -80,9 +82,13 @@ class bike:
         self.susp_upper.pos += d_pos
         self.spring.axis += d_pos
 
+    # allows the main code to set the horizontal velocity of the unicycle
     def setForVel(self, vel):
         self.forVel = vel
 
+    # moves the entire bike horizontally and moves all parts of the bike other
+    # than the seat vertically to match the height of the ground at the point
+    # that the bike just moved to
     def move(self, dt):
         dx = dt * self.forVel
         d_pos = dx*self.forward
@@ -98,15 +104,15 @@ class bike:
         self.susp_upper.pos += d_pos
         self.seat.pos += d_pos
         self.spring.axis -= dy*self.up   # compress the spring!
-
-dt = .01
-seat_mass = 90.7
-bike_x = -9
-bike_x_vel = 7.50
+# Definition of global constants
+dt = .01                        # time step
+seat_mass = 90.7                # seat mass
+bike_x = -9                     # initial x-position of the bike
+bike_x_vel = 7.50               # initial y-position of the bike
 #spring_length = 2.0
-k = 400.0 # spring constant
-bump_height = 0.8
+k = 400.0                       # spring constant
 
+# Asks for the type of damping the user wants to input
 try :
     dampbutton = int(sys.argv[1])
     if dampbutton not in [0, 1, 2]:
@@ -124,7 +130,7 @@ elif dampbutton == 2:
     b = 2*np.sqrt(k*seat_mass)+ 3*seat_mass # damping parameter (equal to omega0)
     selected = True
     
-    
+
 # make the ground
 #ground1 = box(pos = (0,-.5,0),length = 50.0, width =6.0, height = 1.0)
 def getGround(x):
@@ -144,11 +150,12 @@ for i in range(int(groundlength/groundstep)):
     groundpoints.append(groundunit)
 ground = curve(pos=groundpoints)
 
+# Creates a object of the bike class
 el_biko = bike(pos = (0, 0, 0), wheel_thick = .5, 
             wheel_rad = 1.2 , bridge_thick=.3, b=b, k=k, seat_mass=seat_mass)
 el_biko.setForVel(bike_x_vel)
 
-bumped = False
+# Main program looop
 while el_biko.pos.x < groundlength:
     el_biko.move(dt)
     el_biko.oscillate(dt)
