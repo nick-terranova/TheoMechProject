@@ -137,6 +137,7 @@ class Bike:
         self.susp_upper.pos += d_pos
         self.seat.pos += d_pos
         self.spring.axis -= dy*self.up   # compress the spring!
+
 # Definition of global constants
 dt = .01                        # time step
 seat_mass = 90.7                # seat mass
@@ -174,8 +175,8 @@ def g1(x):
         return np.sin(2*np.pi*x/10)
 
 def g2(x):
-    return -.5*np.sin(2*np.pi*x/10) + .1* np.sin(np.pi*x) + np.sin(2*np.pi*x/20) \
-        + np.cos(2*np.pi*x/10) - np.cos(2*np.pi*x/30)
+    return (-.5*np.sin(2*np.pi*x/10) + .1* np.sin(np.pi*x) + np.sin(2*np.pi*x/20) \
+        + np.cos(2*np.pi*x/10) - np.cos(2*np.pi*x/30))*.2
 
 f = lambda x: g2(x)
 
@@ -190,7 +191,8 @@ acc = 0
 currenttime = 0
 tlist = [0.0]
 acclist = [0.0]
-# Main program looop
+# Main program loop
+#scene.forward = (-2,-1,-1)
 while el_biko.pos.x < ground.length:
     el_biko.move(dt)
     acc = el_biko.oscillate(dt)
