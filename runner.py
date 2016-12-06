@@ -8,8 +8,9 @@ repeatedly runs the simulation projectpart4.py
 import sys
 import os
 
-n = 1
+n = 2
 c = 1
 
 for i in range(n):
-    os.system("python projectpart4.py %d" % c)
+    p = 4 + i % 2
+    os.system("python projectpart%d.py %d" % (p,c))
