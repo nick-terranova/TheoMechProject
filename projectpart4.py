@@ -153,6 +153,5 @@ while el_biko.pos.x < groundlength:
     el_biko.move(dt)
     el_biko.oscillate(dt)
     scene.center = el_biko.pos + 2*el_biko.wheel_rad*el_biko.up
-    rate(100)
+    rate(1000)
 
-exit(0)
