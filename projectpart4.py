@@ -8,6 +8,7 @@ Demonstrates the difference between passive and semi-active suspension in a Unic
 from visual import *
 #import sympy as syn
 import numpy as np
+import sys
 
 # Note from Dr. Olenick: Compare with a paper.  (Use the active suspension)
 
@@ -106,20 +107,22 @@ bike_x_vel = 7.50
 k = 400.0 # spring constant
 bump_height = 0.8
 
-selected = False
-while selected == False:
-    dampbutton = input("Choose what type of damping you would like (0 : under,1 : critical,2 : over):")
-    if dampbutton == 1:
-        b = 2*np.sqrt(k*seat_mass) # damping parameter (equal to omega0)
-        selected = True
-    elif dampbutton == 0:
-        b = 2*np.sqrt(k*seat_mass)- 3*seat_mass # damping parameter (equal to omega0)
-        selected = True
-    elif dampbutton == 2:
-        b = 2*np.sqrt(k*seat_mass)+ 3*seat_mass # damping parameter (equal to omega0)
-        selected = True
-    else:
-        print "This is not a valid input.  Please try again."
+try :
+    dampbutton = int(sys.argv[1])
+    if dampbutton not in [0, 1, 2]:
+        dampbutton = 1
+except :
+    dampbutton = 1
+
+if dampbutton == 1:
+    b = 2*np.sqrt(k*seat_mass) # damping parameter (equal to omega0)
+    selected = True
+elif dampbutton == 0:
+    b = 2*np.sqrt(k*seat_mass)- 3*seat_mass # damping parameter (equal to omega0)
+    selected = True
+elif dampbutton == 2:
+    b = 2*np.sqrt(k*seat_mass)+ 3*seat_mass # damping parameter (equal to omega0)
+    selected = True
     
     
 # make the ground
