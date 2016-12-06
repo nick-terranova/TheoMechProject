@@ -9,6 +9,7 @@ from visual import *
 #import sympy as syn
 import numpy as np
 import sys
+import matplotlib.pyplot as plt
 
 # Note from Dr. Olenick: Compare with a paper.  (Use the active suspension)
 
@@ -81,6 +82,7 @@ class bike:
         self.seat.pos += d_pos
         self.susp_upper.pos += d_pos
         self.spring.axis += d_pos
+        return a
 
     # allows the main code to set the horizontal velocity of the unicycle
     def setForVel(self, vel):
@@ -155,10 +157,24 @@ el_biko = bike(pos = (0, 0, 0), wheel_thick = .5,
             wheel_rad = 1.2 , bridge_thick=.3, b=b, k=k, seat_mass=seat_mass)
 el_biko.setForVel(bike_x_vel)
 
+# initializes lists for time and acceleration
+acc = 0
+currenttime = 0
+tlist = [0.0]
+acclist = [0.0]
 # Main program looop
 while el_biko.pos.x < groundlength:
     el_biko.move(dt)
-    el_biko.oscillate(dt)
-    scene.center = el_biko.pos + 2*el_biko.wheel_rad*el_biko.up
+    acc = el_biko.oscillate(dt)
+    acclist.append(acc)
+    currenttime += dt
+    tlist.append(currenttime)
+    scene.center = el_biko.pos + 2*el_biko.wheel_rad*el_biko.up  # centers the bike in the window
     rate(1000)
 
+# Plots a graph of acceleration of the seat vs. time for the run
+plt.plot(tlist,acclist,'ro')
+plt.title("Acceleration of the Unicycle Seat vs. Time")
+plt.xlabel("Time (s)")
+plt.ylabel("Acceleration (m/s^2)")
+plt.show()
