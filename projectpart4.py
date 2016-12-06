@@ -13,7 +13,38 @@ import matplotlib.pyplot as plt
 
 # Note from Dr. Olenick: Compare with a paper.  (Use the active suspension)
 
-class bike:
+class Ground:
+    def __init__(self, beg, end, step, setGround):
+        # all of data about the ground...
+        self.beg = float(beg)
+        self.end = float(end)
+        self.step = float(step)
+        self.length = np.abs(self.end - self.beg)
+        self.heights = []
+        self.points  = []
+        self.setGround = setGround
+
+        # make the ground points and heights
+        x = self.beg
+        for i in range(int(self.length/self.step) + 1):
+            x += self.step
+            y = setGround(x)
+            self.heights.append(y)
+            new_point = (x,y,0)
+            self.points.append(new_point)
+        self.body = curve(pos=self.points)
+
+    def getHeight(self, x):
+        if x < self.beg :
+            return self.heights[0]
+        elif x > self.end:
+            return self.heights[-1]
+        else :
+            x = x / self.step # convert to units of "ground-steps"
+            i = int(x)
+            return self.heights[i] + (x - i) * (self.heights[i+1] - self.heights[i])
+
+class Bike:
     # recommended wheel_rad-bridge_thick ratio = 5
     def __init__(self, pos=(0,-2,0), forward = (1,0,0),up=(0,1,0), wheel_thick = .3, 
             wheel_rad = .5 , bridge_thick=.1, b=1.0, k=1.0, seat_mass=90.7):
@@ -94,7 +125,7 @@ class bike:
     def move(self, dt):
         dx = dt * self.forVel
         d_pos = dx*self.forward
-        dy = getGround(self.pos.x+dx) - self.pos.y
+        dy = ground.getHeight(self.pos.x+dx) - self.pos.y
         d_pos_base = d_pos + dy*self.up
         self.pos += d_pos_base
         self.left_leg.pos += d_pos_base
@@ -113,6 +144,8 @@ bike_x = -9                     # initial x-position of the bike
 bike_x_vel = 7.50               # initial y-position of the bike
 #spring_length = 2.0
 k = 400.0                       # spring constant
+groundlength = 50.0             # length of the ground
+groundstep = 0.05               # distance between points of the ground
 
 # Asks for the type of damping the user wants to input
 try :
@@ -134,26 +167,21 @@ elif dampbutton == 2:
     
 
 # make the ground
-#ground1 = box(pos = (0,-.5,0),length = 50.0, width =6.0, height = 1.0)
-def getGround(x):
-#    return np.sin(2*np.pi*x/10)
+def g1(x):
     if x < 10 or x > 15:
         return x*0
     elif 10 <= x <= 15:
         return np.sin(2*np.pi*x/10)
-groundlength = 50.0
-groundpoints = []
-groundheight = []
-groundstep = 0.05
-current_x = 0
-for i in range(int(groundlength/groundstep)):
-    current_x += groundstep
-    groundunit = (current_x,getGround(current_x),0)
-    groundpoints.append(groundunit)
-ground = curve(pos=groundpoints)
 
-# Creates a object of the bike class
-el_biko = bike(pos = (0, 0, 0), wheel_thick = .5, 
+def g2(x):
+    return -.5*np.sin(2*np.pi*x/10) + .1* np.sin(np.pi*x) + np.sin(2*np.pi*x/20) \
+        + np.cos(2*np.pi*x/10) - np.cos(2*np.pi*x/30)
+
+f = lambda x: g2(x)
+
+# Creates the objects of ground and bike classes
+ground = Ground(0, groundlength, groundstep, f)
+el_biko = Bike(pos = (0, 0, 0), wheel_thick = .5, 
             wheel_rad = 1.2 , bridge_thick=.3, b=b, k=k, seat_mass=seat_mass)
 el_biko.setForVel(bike_x_vel)
 
@@ -163,7 +191,7 @@ currenttime = 0
 tlist = [0.0]
 acclist = [0.0]
 # Main program looop
-while el_biko.pos.x < groundlength:
+while el_biko.pos.x < ground.length:
     el_biko.move(dt)
     acc = el_biko.oscillate(dt)
     acclist.append(acc)
