@@ -142,11 +142,13 @@ class Bike:
 dt = .01                        # time step
 seat_mass = 90.7                # seat mass
 bike_x = -9                     # initial x-position of the bike
-bike_x_vel = 7.50               # initial y-position of the bike
+bike_x_vel = 4.0               # initial y-position of the bike
 #spring_length = 2.0
 k = 400.0                       # spring constant
-groundlength = 50.0             # length of the ground
+groundlength = 1000.0             # length of the ground
 groundstep = 0.05               # distance between points of the ground
+rate_param = 10000
+data_points = 600
 
 # Asks for the type of damping the user wants to input
 try :
@@ -175,8 +177,12 @@ def g1(x):
         return np.sin(2*np.pi*x/10)
 
 def g2(x):
-    return (-.5*np.sin(2*np.pi*x/10) + .1* np.sin(np.pi*x) + np.sin(2*np.pi*x/20) \
-        + np.cos(2*np.pi*x/10) - np.cos(2*np.pi*x/30))*.2
+    return (-.5*np.sin(2*np.pi*x/300) + .05* np.sin(np.pi*5*x) + np.sin(2*np.pi*x/600) \
+        + np.cos(2*np.pi*x/300) - np.cos(2*np.pi*x/900))*.2
+
+def g3(x):
+    return (-.5*np.sin(2*np.pi*x/100) + .02* np.sin(np.pi*x) + np.sin(2*np.pi*x/30) \
+        + np.cos(2*np.pi*x/40) - np.cos(2*np.pi*x/30))*.2
 
 f = lambda x: g2(x)
 
@@ -191,19 +197,36 @@ acc = 0
 currenttime = 0
 tlist = [0.0]
 acclist = [0.0]
+acc_sum = 0
 # Main program loop
 #scene.forward = (-2,-1,-1)
+scene.range = 10
 while el_biko.pos.x < ground.length:
+    # update bike
     el_biko.move(dt)
     acc = el_biko.oscillate(dt)
+
+    # update data
     acclist.append(acc)
+    acc_sum += np.abs(acc)
     currenttime += dt
     tlist.append(currenttime)
+
+    # update the scene
     scene.center = el_biko.pos + 2*el_biko.wheel_rad*el_biko.up  # centers the bike in the window
-    rate(1000)
+    rate(rate_param)
+
+print acc_sum/len(acclist)
+
+tlistshort = []
+acclistshort = []
+for i in range(len(acclist)/10):
+    tlistshort.append(tlist[10*i])
+    acclistshort.append(acclist[10*i])
+
 
 # Plots a graph of acceleration of the seat vs. time for the run
-plt.plot(tlist,acclist,'ro')
+plt.plot(tlistshort,acclistshort,'ro')
 plt.title("Acceleration of the Unicycle Seat vs. Time")
 plt.xlabel("Time (s)")
 plt.ylabel("Acceleration (m/s^2)")
