@@ -39,19 +39,21 @@ class bike:
 
         # makes the wheel
         self.wheel = cylinder(pos=self.pos+self.wheel_rad*self.up-.5*self.wheel_thick*self.right,
-            axis = self.wheel_thick * self.right, radius = self.wheel_rad, color = color.blue)
+            axis = self.wheel_thick * self.right, radius = self.wheel_rad, color = (.7,.7,.7))
 
         # makes the frame
         self.bridge = box(pos = self.pos + (2*self.wheel_rad+1.5*self.bridge_thick) * self.up, 
             length = self.bridge_thick, width = 2*self.bridge_thick + self.wheel_thick, 
-            height = self.bridge_thick)
+            height = self.bridge_thick, color=color.orange)
         leg_height = (self.wheel_rad + 2.5*self.bridge_thick)
         self.left_leg = box(pos = self.pos + (self.wheel_rad+(leg_height-self.bridge_thick)/2) 
             * self.up - .5* (self.wheel_thick + self.bridge_thick) * self.right , 
-            width = self.bridge_thick, length=self.bridge_thick, height = leg_height)
+            width = self.bridge_thick, length=self.bridge_thick, height = leg_height,
+            color=color.orange)
         self.right_leg = box(pos = self.pos + (self.wheel_rad+(leg_height-self.bridge_thick)/2) 
             * self.up + .5* (self.wheel_thick + self.bridge_thick) * self.right , 
-            width = self.bridge_thick, length=self.bridge_thick, height = leg_height)
+            width = self.bridge_thick, length=self.bridge_thick, height = leg_height,
+            color=color.orange)
 
         # makes the spring, lower suspension
         self.spring = helix(pos=self.pos+2*(self.wheel_rad + self.bridge_thick) * self.up,
@@ -66,7 +68,7 @@ class bike:
         seat_side = 2 * self.bridge_thick + self.wheel_thick
         self.seat = box(pos = self.susp_upper.pos + .5*seat_side*self.up,
             width = seat_side, height= seat_side, length = self.wheel_rad,
-            make_trail=True) #, trail_radius = .2*seat_side, trail_color=color.red)
+            make_trail=True, color = color.yellow)
         self.seat.mass = seat_mass
 
     def oscillate(self, dt):
