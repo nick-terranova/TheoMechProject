@@ -152,7 +152,7 @@ bike_x = -9                     # initial x-position of the bike
 bike_x_vel = 4.0               # initial y-position of the bike
 #spring_length = 2.0
 k = 400.0                       # spring constant
-groundlength = 1000.0             # length of the ground
+groundlength = 50.0             # length of the ground
 groundstep = 0.05               # distance between points of the ground
 rate_param = 10000
 
@@ -190,7 +190,7 @@ def g3(x):
     return (-.5*np.sin(2*np.pi*x/100) + .02* np.sin(np.pi*x) + np.sin(2*np.pi*x/30) \
         + np.cos(2*np.pi*x/40) - np.cos(2*np.pi*x/30))*.2
 
-f = lambda x: g2(x)
+f = lambda x: g1(x)
 
 # Creates the objects of ground and bike classes
 ground = Ground(0, groundlength, groundstep, f)
