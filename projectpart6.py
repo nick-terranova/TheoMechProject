@@ -1,5 +1,5 @@
 '''
-projectpart4.py
+projectpart6.py
 by Nick Terranova and Ted Morin
 
 Demonstrates the difference between passive and semi-active suspension in a Unicycle.
@@ -59,7 +59,8 @@ class Ground:
 class Bike:
     # recommended wheel_rad-bridge_thick ratio = 5
     def __init__(self, ground, pos=(0,-2,0), forward = (1,0,0),up=(0,1,0), wheel_thick = .3, 
-            wheel_rad = .5 , bridge_thick=.1, b0=1.0, k=1.0, seat_mass=90.7, u = lambda x : 0):
+            wheel_rad = .5 , bridge_thick=.1, b0=1.0, k=1.0, seat_mass=90.7, u = lambda x : 0, \
+                 trail_color = color.red):
         self.pos = vector(pos)
         # up unit vector is normalized
         self.up = vector(up).norm()                 
@@ -114,12 +115,14 @@ class Bike:
             radius = .8*self.susp_rad, color = (.8,0,0) )
 
         # makes upper suspension, "seat"
+        self.trail_color = trail_color
         self.susp_upper = cylinder(pos = self.spring.pos + self.spring.axis, 
             axis = -.75*self.spring.axis, radius = self.susp_rad, color = (1,0,0) )
         seat_side = 2 * self.bridge_thick + self.wheel_thick
         self.seat = box(pos = self.susp_upper.pos + .5*seat_side*self.up,
             width = seat_side, height= seat_side, length = self.wheel_rad,
             make_trail=True, color = color.yellow)
+        self.seat.trail_object.color = self.trail_color
         self.seat.mass = seat_mass
 
     # takes the differential equation for the acceleration of the passive system,
@@ -209,21 +212,21 @@ def u1(a):
     decrease = 100
     k = default
     while True:
-        try :
-            response = k * np.power(a,2)
-            break
-        except:
+        response = k * np.power(a,2)
+        if np.isnan(response):
             print "suspension fried at acceleration %.3f" % a
-            k -= decrease
+            return 0.0
+        else:
+            break
     return response
 
 # Creates the objects of ground and bike classes
 ground1 = Ground(0, 0, groundlength, groundstep, g)
 ground2 = Ground(-3, 0, groundlength, groundstep, g)
 el_biko1 = Bike(ground1, pos = (0, 0, 0), wheel_thick = .5, 
-            wheel_rad = 1.2 , bridge_thick=.3, b0=b, k=k, seat_mass=seat_mass)
+            wheel_rad = 1.2 , bridge_thick=.3, b0=b, k=k, seat_mass=seat_mass,trail_color = color.red)
 el_biko2 = Bike(ground2, pos = (0, 0, -3), wheel_thick = .5, 
-            wheel_rad = 1.2 , bridge_thick=.3, b0=b, k=k, seat_mass=seat_mass, u = u1)
+            wheel_rad = 1.2 , bridge_thick=.3, b0=b, k=k, seat_mass=seat_mass, u = u1, trail_color = color.blue)
 el_biko1.setForVel(bike_x_vel)
 el_biko2.setForVel(bike_x_vel)
 
@@ -236,8 +239,8 @@ acclist2 = [0.0]
 acc_sum1 = 0
 acc_sum2 = 0
 # Main program loop
-#scene.forward = (-2,-1,-1)
-scene.forward = (-1, -.2, 0)
+scene.forward = (-2,-1,-1)
+#scene.forward = (-1, -.2, 0)
 scene.range = 8
 while el_biko1.pos.x < ground1.length:
     # update bikes
@@ -248,9 +251,9 @@ while el_biko1.pos.x < ground1.length:
 
     # update data
     acclist1.append(acc1)
-    acc_sum1 += np.abs(acc1)
+    acc_sum1 += np.power(acc1,2)
     acclist2.append(acc2)
-    acc_sum2 += np.abs(acc2)
+    acc_sum2 += np.power(acc2,2)
     currenttime += dt
     tlist.append(currenttime)
 
@@ -259,8 +262,12 @@ while el_biko1.pos.x < ground1.length:
         # centers the bike in the window
     rate(rate_param)
 
-print "Bike 1 average acceleration %.4f"  % (acc_sum1/len(acclist1))
-print "Bike 2 average acceleration %.4f"  % (acc_sum2/len(acclist2))
+rms1 = np.sqrt(acc_sum1/len(acclist1))
+rms2 = np.sqrt(acc_sum2/len(acclist2))
+
+print "Bike 1 average acceleration %.4f"  % rms1
+print "Bike 2 average acceleration %.4f"  % rms2
+print "The Percent Change is %.4f" % (100*(rms2-rms1)/rms1)
 
 tlistshort = []
 acclistshort1 = []
