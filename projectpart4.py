@@ -184,7 +184,7 @@ def g3(x):
     return (-.5*np.sin(2*np.pi*x/100) + .02* np.sin(np.pi*x) + np.sin(2*np.pi*x/30) \
         + np.cos(2*np.pi*x/40) - np.cos(2*np.pi*x/30))*.2
 
-f = lambda x: g2(x)
+f = lambda x: g3(x)
 
 # Creates the objects of ground and bike classes
 ground = Ground(0, groundlength, groundstep, f)
